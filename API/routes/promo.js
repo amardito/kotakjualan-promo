@@ -25,47 +25,31 @@ router.get('/:promoid', async (req, res, next) => {
     });
 });
 
-
+// search require idBarang which exist by idToko
 function cekSyarat(arrCari, arrToko){
     let len = arrCari.length;
+    let lenToko = arrToko.length;
+    let rule = arrToko.length;
     let i = 0;
     let j = 0;
-    let lenToko = arrToko.length
-    let rule = arrToko.length;
-    //console.log(rule);
     let find = 0;
     let sta = false;
     while(i<len){
-        
-        // console.log("Cari : "+arrCari[i]);
-
-        //console.log("i : "+i);
-
         j = 0;
-
         while(j<lenToko){
-
-          
-            if(arrCari[i] == arrToko[j].productID){
+            if(arrCari[i] == arrToko[j].idBarang){
                 find++;
-                // console.log(arrToko[j].productID);
-                arrToko[j].productID = undefined;
+                arrToko[j].idBarang = undefined;
             }
-
-            //console.log("Ketemu : "+find);  
-
-            if(find == rule){
-                // console.log("Berhenti");
+            if(find == rule){ //fulfilled qualify total finded
                 sta = true;
                 break;
             }
-
             j++;
         }
-
         i++;
     }
-    return sta;
+    return sta; //reset sta
 }
 
 //valid promo in cart
@@ -73,6 +57,7 @@ router.post('/cekpromo', async (req, res, next) => {
     let arrToko = new Array();
     let arrCari = new Array();
     let arrBonus = new Array();
+    let tmpIdBarang = new Array()
     arrCari = req.body.idBarang;
     arrToko = req.body.idToko;
     let len =   arrToko.length;
@@ -80,16 +65,25 @@ router.post('/cekpromo', async (req, res, next) => {
     let totalPotongan = 0;
     while (i<len) {
         let s = await Special.find({idToko : arrToko[i]})
-        if(s.length > 0){
-            let lenS = s.length;
-            let o = 0;
+        if(s.length > 0){ // condition check , is idToko available?
+            let lenS = s.length; // total value from idToko
+            let o = 0; // for array index and loop condition
             while(o<lenS){
-                //console.log(s[0].requireItem);
+                tmpIdBarang = []; //declare as array
                 let sta = cekSyarat(arrCari, s[o].requireItem);
-                // console.log(sta)    
+                let lengBonusItem = s[o].bonusItem.length;//get length from bonusitem
+                let p = 0;
+                while(p<lengBonusItem){
+                    tmpIdBarang.push(s[o].bonusItem[p].idBarang)// all values from bonusitem will be array
+                    p++
+                }
+                let objItemBonus = { // make structure for result
+                    idToko : s[o].idToko,
+                    idBarang : tmpIdBarang
+                }
                 if(sta == true){
                     totalPotongan = totalPotongan + s[o].promoPrice;
-                    arrBonus = s[o].bonusItem;
+                    arrBonus.push(objItemBonus) // the structure will be array
                     break;
                 }
                 o++;
@@ -97,7 +91,6 @@ router.post('/cekpromo', async (req, res, next) => {
         }
         i++;
     }
-    // console.log(totalPotongan)
     res.status(200).send({result: totalPotongan , arrBonus})
 });
 
