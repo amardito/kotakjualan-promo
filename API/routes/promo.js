@@ -5,7 +5,7 @@ const Special = require('../models/special');
 //show all availabe promos
 router.get('/', async (req, res, next) => {
     await Special.find()
-    .select("promoName requireItem bonusItem promoPrice")
+    .select("idToko promoName requireItem bonusItem promoPrice")
     .then(doc => {
         res.status(200).json(doc);
     });
