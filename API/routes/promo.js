@@ -4,25 +4,17 @@ const Special = require('../models/special');
 
 //show all availabe promos
 router.get('/', async (req, res, next) => {
-    await Special.find()
-    .select("idToko promoName requireItem bonusItem promoPrice")
-    .then(doc => {
-        res.status(200).json(doc);
-    });
+    res.status(200).json(
+        await Special.find()
+        .select("idToko promoName requireItem bonusItem promoPrice")
+    );
 });
 
 //search an available promos
 router.get('/:promoid', async (req, res, next) => {
-    await Special.findById({_id : req.params.promoid})
-    .then(doc => {
-        if(doc){
-            res.status(200).json(doc);
-        }else{
-            res.status(404).json({
-                error : 'Not Found'
-            });
-        }
-    });
+    res.status(200).json( 
+        await Special.findById({_id : req.params.promoid})
+    );
 });
 
 // search require idBarang which exist by idToko
