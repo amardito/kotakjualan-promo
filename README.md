@@ -1,3 +1,3 @@
-kotakjualan-promo
+# kotakjualan-promo
 
-This will handle promo service from Kotakjualan.com
+This will handle promo service for Kotakjualan.com
